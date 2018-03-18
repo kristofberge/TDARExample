@@ -1,5 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.companyname.TDCARExample">
-	<uses-sdk android:minSdkVersion="15" />
-	<application android:label="TDCARExample.Android"></application>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="com.companyname.TDCARExample" android:installLocation="auto">
+	<uses-sdk android:minSdkVersion="26" android:targetSdkVersion="26" />
+	<uses-permission android:name="android.permission.CAMERA" />
+	<application android:label="TDCARExample.Android">
+    <meta-data android:name="com.google.ar.core" android:value="required" />
+  </application>
 </manifest>
