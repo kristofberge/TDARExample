@@ -61,8 +61,15 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DisplayRotationHelper.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="PageRenderers\ARPageRenderer.cs" />
+    <Compile Include="Renderers\BackgroundRenderer.cs" />
+    <Compile Include="Renderers\ObjectRenderer.cs" />
+    <Compile Include="Renderers\PlaneAttachment.cs" />
+    <Compile Include="Renderers\PlaneRenderer.cs" />
+    <Compile Include="Renderers\PointCloudRenderer.cs" />
+    <Compile Include="Renderers\ShaderUtil.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -72,6 +79,15 @@
     <AndroidResource Include="Resources\layout\ARView.axml">
       <SubType>Designer</SubType>
     </AndroidResource>
+    <AndroidResource Include="Resources\Raw\screenquad_vertex.shader" />
+    <AndroidResource Include="Resources\Raw\screenquad_fragment_oes.shader" />
+    <AndroidResource Include="Resources\Raw\light_vertex.shader" />
+    <AndroidResource Include="Resources\Raw\object_fragment.shader" />
+    <AndroidResource Include="Resources\Raw\object_vertex.shader" />
+    <AndroidResource Include="Resources\Raw\passthrough_fragment.shader" />
+    <AndroidResource Include="Resources\Raw\plane_fragment.shader" />
+    <AndroidResource Include="Resources\Raw\plane_vertex.shader" />
+    <AndroidResource Include="Resources\Raw\point_cloud_vertex.shader" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\icon.png" />
@@ -91,8 +107,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\TDCARExample\TDCARExample.csproj">
-      <Project>{1D5859B4-6297-4A37-8A17-6C827C793DBD}</Project>
+      <Project>{898a1e91-3548-4795-a48c-22031bb8bad3}</Project>
       <Name>TDCARExample</Name>
+    </ProjectReference>
+    <ProjectReference Include="C:\Users\krist\source\repos\Xamarin\XamarinComponents\Android\ARCore\samples\JavaGL\JavaGL.csproj">
+      <Project>{7b372cce-4d08-4562-9b71-a36295cd14a0}</Project>
+      <Name>JavaGL</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
