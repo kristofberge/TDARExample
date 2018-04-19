@@ -23,9 +23,11 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
-    <MtouchArch>x86_64</MtouchArch>
+    <MtouchArch>i386, x86_64</MtouchArch>
     <MtouchLink>None</MtouchLink>
     <MtouchDebug>true</MtouchDebug>
+    <CodesignKey>iPhone Developer</CodesignKey>
+    <MtouchFastDev>true</MtouchFastDev>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhoneSimulator' ">
     <DebugType>none</DebugType>
@@ -50,6 +52,7 @@
     <CodesignKey>iPhone Developer</CodesignKey>
     <MtouchDebug>true</MtouchDebug>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
+    <MtouchLink>None</MtouchLink>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|iPhone' ">
     <DebugType>none</DebugType>
@@ -87,6 +90,21 @@
     <CodesignKey>iPhone Distribution</CodesignKey>
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants></DefineConstants>
+    <WarningLevel>4</WarningLevel>
+    <CodesignKey>iPhone Developer</CodesignKey>
+    <MtouchDebug>true</MtouchDebug>
+    <MtouchNoSymbolStrip>true</MtouchNoSymbolStrip>
+    <MtouchFastDev>true</MtouchFastDev>
+    <MtouchVerbosity></MtouchVerbosity>
+    <IOSDebuggerPort>15214</IOSDebuggerPort>
+    <MtouchLink></MtouchLink>
+    <MtouchHttpClientHandler></MtouchHttpClientHandler>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
     <Compile Include="AppDelegate.cs" />
@@ -94,6 +112,8 @@
     <None Include="Info.plist" />
     <Compile Include="PageRenderers\ARPageRenderer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewRenderers\ARViewRenderer.cs" />
+    <Compile Include="ViewRenderers\MyARSCNViewDelegate.cs" />
   </ItemGroup>
   <ItemGroup>
     <BundleResource Include="Resources\Default-568h%402x.png" />
@@ -125,8 +145,31 @@
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\TDCARExample\TDCARExample.csproj">
-      <Project>{1D5859B4-6297-4A37-8A17-6C827C793DBD}</Project>
+      <Project>{898A1E91-3548-4795-A48C-22031BB8BAD3}</Project>
       <Name>TDCARExample</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ViewRenderers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <SceneKitAsset Include="art.scnassets\bear.dae" />
+    <SceneKitAsset Include="art.scnassets\Bear_D.tga" />
+    <SceneKitAsset Include="art.scnassets\Bear_Eye_D.tga" />
+    <SceneKitAsset Include="art.scnassets\Bear_Fur_D.tga" />
+    <SceneKitAsset Include="art.scnassets\gengar.dae" />
+    <SceneKitAsset Include="art.scnassets\Godzilla_D.tga" />
+    <SceneKitAsset Include="art.scnassets\Godzilla_E.tga" />
+    <SceneKitAsset Include="art.scnassets\Godzilla_N.tga" />
+    <SceneKitAsset Include="art.scnassets\Godzilla_S.tga" />
+    <SceneKitAsset Include="art.scnassets\minigodzilla.dae" />
+    <SceneKitAsset Include="art.scnassets\pikachu.dae" />
+    <SceneKitAsset Include="art.scnassets\pm0025_00_BodyA1.png" />
+    <SceneKitAsset Include="art.scnassets\pm0025_00_BodyB1.png" />
+    <SceneKitAsset Include="art.scnassets\pm0025_00_Eye1.png" />
+    <SceneKitAsset Include="art.scnassets\pm0025_00_Mouth1.png" />
+    <SceneKitAsset Include="art.scnassets\sharkinho.dae" />
+    <SceneKitAsset Include="art.scnassets\ship.dae" />
+    <SceneKitAsset Include="art.scnassets\texture.png" />
   </ItemGroup>
 </Project>

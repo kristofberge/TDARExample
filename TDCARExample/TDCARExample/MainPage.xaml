@@ -1,14 +1,23 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:TDCARExample"
              x:Class="TDCARExample.MainPage">
 
-    <Button
-        Text="Go to AR Page"
-        HorizontalOptions="Center"
-        VerticalOptions="Center"
-        FontSize="Large"
-        Clicked="OnButtonClicked"/>
+    <StackLayout>
+        <Button
+            Text="Go to AR Page"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            FontSize="Large"
+            Clicked="OnButtonClicked"/>
+        
+        <Button
+            Text="Go to AR View Page"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            FontSize="Large"
+            Clicked="OnViewButtonClicked"/>
+    </StackLayout>
 
 </ContentPage>

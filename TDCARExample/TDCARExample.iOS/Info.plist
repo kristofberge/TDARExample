@@ -5,7 +5,6 @@
 	<key>UIDeviceFamily</key>
 	<array>
 		<integer>1</integer>
-		<integer>2</integer>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
@@ -21,7 +20,7 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>MinimumOSVersion</key>
-	<string>10.3</string>
+	<string>11.0</string>
 	<key>CFBundleDisplayName</key>
 	<string>TDCARExample</string>
 	<key>CFBundleIdentifier</key>
@@ -50,5 +49,7 @@
 	<string>LaunchScreen</string>
 	<key>CFBundleName</key>
 	<string>TDCARExample</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Camera permissions needed</string>
 </dict>
 </plist>

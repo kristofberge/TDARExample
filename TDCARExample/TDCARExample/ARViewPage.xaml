@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage 
+    xmlns="http://xamarin.com/schemas/2014/forms" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+    xmlns:views="clr-namespace:TDCARExample.Views;assembly=TDCARExample"
+    xmlns:viewModels="clr-namespace:TDCARExample.ViewModels;assembly=TDCARExample"
+    x:Class="TDCARExample.ARViewPage">
+
+    <ContentPage.BindingContext>
+        <viewModels:ARViewPageViewModel/>
+    </ContentPage.BindingContext>
+    
+    <AbsoluteLayout>
+        <views:ARView 
+            UseAlternativeModel="{Binding UseAlternativeModel}"
+            AbsoluteLayout.LayoutBounds="0,0,1,1"
+            AbsoluteLayout.LayoutFlags="All"/>
+        <Grid
+            BackgroundColor="#80030303"
+            AbsoluteLayout.LayoutBounds="0,0,1,40"
+            AbsoluteLayout.LayoutFlags="PositionProportional, WidthProportional">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            
+            <views:SelectableLabel
+                IsSelected="{Binding UseNormalModel}"
+                Text="Model 1"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                Grid.Row="0" Grid.Column="0">
+                <views:SelectableLabel.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Model1ClickedCommand}" />
+                </views:SelectableLabel.GestureRecognizers>
+            </views:SelectableLabel>
+            <views:SelectableLabel
+                IsSelected="{Binding UseAlternativeModel}"
+                Text="Model 2"
+                VerticalOptions="Center"
+                HorizontalOptions="Center"
+                Grid.Row="0" Grid.Column="1">
+                <views:SelectableLabel.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding Model2ClickedCommand}" />
+                </views:SelectableLabel.GestureRecognizers>
+            </views:SelectableLabel>
+        </Grid>
+    </AbsoluteLayout>
+</ContentPage>

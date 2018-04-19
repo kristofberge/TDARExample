@@ -18,5 +18,10 @@ namespace TDCARExample
         {
             Navigation.PushAsync(new ARPage());
         }
+
+        private void OnViewButtonClicked(object sender, EventArgs e)
+        {
+            Navigation.PushAsync(new ARViewPage());
+        }
     }
 }

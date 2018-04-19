@@ -7,9 +7,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TDCARExample.Android", "TDC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TDCARExample.iOS", "TDCARExample\TDCARExample.iOS\TDCARExample.iOS.csproj", "{D506AF1E-FA2A-4BFA-9422-073E1B80E549}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TDCARExample", "TDCARExample\TDCARExample\TDCARExample.csproj", "{898A1E91-3548-4795-A48C-22031BB8BAD3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TDCARExample", "TDCARExample\TDCARExample\TDCARExample.csproj", "{898A1E91-3548-4795-A48C-22031BB8BAD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavaGL", "C:\Users\krist\source\repos\Xamarin\XamarinComponents\Android\ARCore\samples\JavaGL\JavaGL.csproj", "{7B372CCE-4D08-4562-9B71-A36295CD14A0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JavaGL", "TDCARExample\JavaGL\JavaGL.csproj", "{7B372CCE-4D08-4562-9B71-A36295CD14A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

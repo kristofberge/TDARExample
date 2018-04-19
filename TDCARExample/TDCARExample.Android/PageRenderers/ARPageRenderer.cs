@@ -160,35 +160,35 @@ namespace TDCARExample.Droid.PageRenderers
 
                 // Handle taps. Handling only one tap per frame, as taps are usually low frequency
                 // compared to frame rate.
-                //MotionEvent tap = null;
-                //mQueuedSingleTaps.TryDequeue(out tap);
+                MotionEvent tap = null;
+                mQueuedSingleTaps.TryDequeue(out tap);
 
-                //if (tap != null && camera.TrackingState == TrackingState.Tracking)
-                //{
-                //    foreach (var hit in frame.HitTest(tap))
-                //    {
-                //        var trackable = hit.Trackable;
+                if (tap != null && camera.TrackingState == TrackingState.Tracking)
+                {
+                    foreach (var hit in frame.HitTest(tap))
+                    {
+                        var trackable = hit.Trackable;
 
-                //        // Check if any plane was hit, and if it was hit inside the plane polygon.
-                //        if (trackable is Plane && ((Plane)trackable).IsPoseInPolygon(hit.HitPose))
-                //        {
-                //            // Cap the number of objects created. This avoids overloading both the
-                //            // rendering system and ARCore.
-                //            if (mAnchors.Count >= 16)
-                //            {
-                //                mAnchors[0].Detach();
-                //                mAnchors.RemoveAt(0);
-                //            }
-                //            // Adding an Anchor tells ARCore that it should track this position in
-                //            // space.  This anchor is created on the Plane to place the 3d model
-                //            // in the correct position relative to both the world and to the plane
-                //            mAnchors.Add(hit.CreateAnchor());
+                        // Check if any plane was hit, and if it was hit inside the plane polygon.
+                        if (trackable is Plane && ((Plane)trackable).IsPoseInPolygon(hit.HitPose))
+                        {
+                            // Cap the number of objects created. This avoids overloading both the
+                            // rendering system and ARCore.
+                            if (anchors.Count >= 16)
+                            {
+                                anchors[0].Detach();
+                                anchors.RemoveAt(0);
+                            }
+                            // Adding an Anchor tells ARCore that it should track this position in
+                            // space.  This anchor is created on the Plane to place the 3d model
+                            // in the correct position relative to both the world and to the plane
+                            anchors.Add(hit.CreateAnchor());
 
-                //            // Hits are sorted by depth. Consider only closest hit on a plane.
-                //            break;
-                //        }
-                //    }
-                //}
+                            // Hits are sorted by depth. Consider only closest hit on a plane.
+                            break;
+                        }
+                    }
+                }
 
                 // Draw background.
                 this.backgroundRenderer.Draw(frame);
@@ -222,20 +222,6 @@ namespace TDCARExample.Droid.PageRenderers
                     var plane = (Plane)p;
                     planes.Add(plane);
                 }
-
-                // Check if we detected at least one plane. If so, hide the loading message.
-                //if (mLoadingMessageSnackbar != null)
-                //{
-                //    foreach (var plane in planes)
-                //    {
-                //        if (plane.GetType() == Plane.Type.HorizontalUpwardFacing
-                //                && plane.TrackingState == TrackingState.Tracking)
-                //        {
-                //            hideLoadingMessage();
-                //            break;
-                //        }
-                //    }
-                //}
 
                 // Visualize planes.
                 this.planeRenderer.DrawPlanes(planes, camera.DisplayOrientedPose, projmtx);
