@@ -1,14 +1,16 @@
 ﻿using System;
-using TDCARExample.iOS.ViewRenderers;
-using TDCARExample.Views;
-using Xamarin.Forms;
-using Xamarin.Forms.Platform.iOS;
+using System.Collections.Specialized;
+using System.Linq;
 using ARKit;
-using SceneKit;
-using UIKit;
 using CoreGraphics;
 using OpenTK;
-using System.ComponentModel;
+using SceneKit;
+using TDCARExample.iOS.ViewRenderers;
+using TDCARExample.Models;
+using TDCARExample.Views;
+using UIKit;
+using Xamarin.Forms;
+using Xamarin.Forms.Platform.iOS;
 
 [assembly: ExportRenderer(typeof(ARView), typeof(ARViewRenderer))]
 namespace TDCARExample.iOS.ViewRenderers
@@ -23,26 +25,24 @@ namespace TDCARExample.iOS.ViewRenderers
 
         public ARViewRenderer()
         {
-            this.defaultModel = new Model
-            {
-                FileName = "art.scnassets/sharkinho",
-                NodeName = "shark",
-                Scale = 0.02f,
-                XOffset = 0.5f,
-                YOffset = -1f,
-                ZOffset = -4f
-            };
-            this.altModel = new Model
-            {
-                FileName = "art.scnassets/minigodzilla",
-                NodeName = "Armature",
-                Scale = 0.008f,
-                XOffset = 0.5f,
-                YOffset = 0,
-                ZOffset = -1f
-            };
-
-            this.currentModel = this.altModel;
+            //this.defaultModel = new Model
+            //{
+            //    FileName = "art.scnassets/sharkinho",
+            //    NodeName = "shark",
+            //    Scale = 0.02f,
+            //    XOffset = 0.5f,
+            //    YOffset = -1f,
+            //    ZOffset = -4f
+            //};
+            //this.altModel = new Model
+            //{
+            //    FileName = "art.scnassets/minigodzilla",
+            //    NodeName = "Armature",
+            //    Scale = 0.008f,
+            //    XOffset = 0.5f,
+            //    YOffset = 0,
+            //    ZOffset = -1f
+            //};
         }
 
         protected override void OnElementChanged(ElementChangedEventArgs<ARView> e)
@@ -59,102 +59,90 @@ namespace TDCARExample.iOS.ViewRenderers
 
             this.scene.SetDebugOptions(ARSCNDebugOptions.ShowFeaturePoints);
             this.scene.Session.Run(config, ARSessionRunOptions.ResetTracking | ARSessionRunOptions.RemoveExistingAnchors);
-            this.scene.Delegate = this;
-            
+
+            this.scene.AddGestureRecognizer(new UITapGestureRecognizer(HandleTap));
             SetNativeControl(this.scene);
 
-            Element.OnTapped += HandleTap;
+            this.currentModel = altModel;
+
+            Element.VirtualObjects.CollectionChanged += OnVirtualObjectsChanged;
         }
 
-        protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void HandleTap(UITapGestureRecognizer recognizer)
         {
-            if (e.PropertyName == ARView.UseAlternativeModelProperty.PropertyName)
+            if (recognizer.State == UIGestureRecognizerState.Ended)
             {
-                this.currentModel = !Element.UseAlternativeModel ? altModel : defaultModel;
-                if (this.hasAnchor)
+                CGPoint point = recognizer.LocationInView(this.scene);
+                ARHitTestResult[] hits = this.scene.HitTest(point, ARHitTestResultType.EstimatedHorizontalPlane | ARHitTestResultType.ExistingPlane);
+                ARHitTestResult firstHit = hits.FirstOrDefault();
+                if (firstHit != null)
                 {
-                    
+                    var coords = firstHit.WorldTransform.Column3;
+                    ARAnchor anchor = new ARAnchor(firstHit.WorldTransform);
+                    Element.OnPlaneTapped(new WorldPosition(coords.X, coords.Y, coords.Z));
+                    this.scene.Session.AddAnchor(anchor);
                 }
             }
-
-            base.OnElementPropertyChanged(sender, e);
         }
 
-        private void HandleTap()
+        private void OnVirtualObjectsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (!this.hasAnchor)
+            foreach (ARObject obj in e.NewItems)
             {
-                this.hasAnchor = AddAnchorToScene();
-                Console.WriteLine("Anchor added:" + hasAnchor);
-                return;
-            }
-        }
-
-        private bool AddAnchorToScene()
-        {
-            // Get the current frame
-            var frame = this.scene.Session.CurrentFrame;
-            if (frame == null) 
-                return false;
-
-            // Create a ray to test from
-            var point = new CGPoint(0.5, 0.5);
-
-            // Preform hit testing on frame
-            var results = frame.HitTest(point, ARHitTestResultType.ExistingPlane | ARHitTestResultType.EstimatedHorizontalPlane);
-
-            // Use the first result
-            if (results.Length > 0)
-            {
-
-                var result = results[0];
-                // Create an anchor for it
-                var anchor = new ARAnchor(result.WorldTransform);
-                // Add anchor to session
+                var anchor = new ARAnchor(new NMatrix4(0, 0, 0, obj.Coordinates.X, 0, 0, 0, obj.Coordinates.Y, 0, 0, 0, obj.Coordinates.Z, 0, 0, 0, 0));
                 this.scene.Session.AddAnchor(anchor);
-
-                InitializeModel(anchor);
-
-                return true;
+                InitializeModel(anchor, obj);
             }
-
-            return false;
         }
+
+
+        //private bool AddAnchorToScene()
+        //{
+        //    // Get the current frame
+        //    var frame = this.scene.Session.CurrentFrame;
+        //    if (frame == null) 
+        //        return false;
+
+        //    // Create a ray to test from
+        //    var point = new CGPoint(0.5, 0.5);
+
+        //    // Preform hit testing on frame
+        //    var results = frame.HitTest(point, ARHitTestResultType.ExistingPlane | ARHitTestResultType.EstimatedHorizontalPlane);
+
+        //    // Use the first result
+        //    if (results.Length > 0)
+        //    {
+
+        //        var result = results[0];
+        //        // Create an anchor for it
+        //        var anchor = new ARAnchor(result.WorldTransform);
+        //        // Add anchor to session
+        //        this.scene.Session.AddAnchor(anchor);
+
+        //        InitializeModel(anchor);
+
+        //        return true;
+        //    }
+
+        //    return false;
+        //}
 
         private SCNVector3 Translation(NMatrix4 self) => new SCNVector3(self.M14, self.M24, self.M34);
 
-        public void InitializeModel(ARAnchor anchor)
+        public void InitializeModel(ARAnchor anchor, ARObject aRObject)
         {
-            // Create a new scene
-            var modelScene = SCNScene.FromFile(this.currentModel.FileName);
+            var modelScene = SCNScene.FromFile($"art.scnassets/{aRObject.Model.Asset}.dae");
+            var newNode = modelScene.RootNode.FindChildNode(aRObject.Model.Id, true);
 
-            // Set the scene to the view
-            this.scene.Scene = modelScene;
-            // Find the model and position it just in front of the camera
-            SCNNode node = this.scene.Scene.RootNode.FindChildNode(this.currentModel.NodeName, true);
-            node.Scale = new SCNVector3(0.5f, 0.5f, 0,5f);
-            var monsterPosition = Translation(anchor.Transform);
-            //monsterPosition.X += 0.055f;
-            //monsterPosition.Y -= 0.004f;
-            //monsterPosition.Z -= 0.0169f;
+            var scale = aRObject.Scale;
+            newNode.Scale = new SCNVector3(scale, scale, scale);
+            newNode.Position = new SCNVector3(aRObject.Coordinates.X, aRObject.Coordinates.Y, aRObject.Coordinates.Z);
 
-            monsterPosition.X += this.currentModel.XOffset;
-            monsterPosition.Y += this.currentModel.YOffset;
-            monsterPosition.Z += this.currentModel.ZOffset;
-            node.Position = new SCNVector3(1.0f, -0.5f, 5.0);
-            Console.WriteLine("Initialized with position X{0} Y{1} Z{2}", node.Position.X, node.Position.Y, node.Position.Z);
+            var sphere = SCNNode.FromGeometry(SCNSphere.Create(0.02f));
+            sphere.Position = new SCNVector3(aRObject.Coordinates.X, aRObject.Coordinates.Y, aRObject.Coordinates.Z);
+
+            this.scene.Scene.RootNode.AddChildNode(newNode);
+            Console.WriteLine("Initialized with position X{0} Y{1} Z{2}", newNode.Position.X, newNode.Position.Y, newNode.Position.Z);
         }
-
-
-    }
-
-    public class Model
-    {
-        public string FileName { get; set; }
-        public string NodeName { get; set; }
-        public float Scale { get; set; }
-        public float XOffset { get; set; }
-        public float YOffset { get; set; }
-        public float ZOffset { get; set; }
     }
 }

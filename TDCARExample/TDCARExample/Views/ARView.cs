@@ -1,4 +1,6 @@
-﻿using System;
+﻿using System.Collections.ObjectModel;
+using System.Windows.Input;
+using TDCARExample.Models;
 using Xamarin.Forms;
 
 namespace TDCARExample.Views
@@ -8,25 +10,36 @@ namespace TDCARExample.Views
         public static readonly BindableProperty UseAlternativeModelProperty =
             BindableProperty.Create(nameof(UseAlternativeModel), typeof(bool), typeof(ARView), default(bool));
 
+        public static readonly BindableProperty PlaneTappedCommandProperty =
+            BindableProperty.Create(nameof(PlaneTappedCommand), typeof(ICommand), typeof(ARView), default(Command));
+
+        public static readonly BindableProperty VirtualObjectsProperty =
+            BindableProperty.Create(nameof(VirtualObjects), typeof(ObservableCollection<ARObject>), typeof(ARView), default(ObservableCollection<ARObject>));
+
+        public ObservableCollection<ARObject> VirtualObjects
+        {
+            get { return (ObservableCollection<ARObject>)GetValue(VirtualObjectsProperty); }
+            set { SetValue(VirtualObjectsProperty, value); }
+        }
+
         public bool UseAlternativeModel
         {
             get { return (bool)GetValue(UseAlternativeModelProperty); }
             set { SetValue(UseAlternativeModelProperty, value); }
         }
 
-        public event Action OnTapped;
-
-        public ARView()
+        public ICommand PlaneTappedCommand
         {
-            GestureRecognizers.Add(new TapGestureRecognizer
-            {
-                Command = new Command(LaunchTappedEvent)
-            });
+            get { return (ICommand)GetValue(PlaneTappedCommandProperty); }
+            set { SetValue(PlaneTappedCommandProperty, value); }
         }
 
-        private void LaunchTappedEvent()
+        public void OnPlaneTapped(WorldPosition coordinates)
         {
-            OnTapped?.Invoke();
+            if (PlaneTappedCommand?.CanExecute(coordinates) ?? false)
+            {
+                PlaneTappedCommand.Execute(coordinates);
+            }
         }
     }
 }

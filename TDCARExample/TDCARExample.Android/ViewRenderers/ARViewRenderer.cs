@@ -1,28 +1,28 @@
-﻿using Android.Content;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using Android.Content;
 using Android.Opengl;
+using Android.Util;
+using Android.Views;
 using Android.Widget;
 using Google.AR.Core;
 using Google.AR.Core.Exceptions;
+using Javax.Microedition.Khronos.Opengles;
 using TDCARExample.Droid.Renderers;
 using TDCARExample.Droid.ViewRenderers;
+using TDCARExample.Models;
 using TDCARExample.Views;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
-
-using ARFrame = Google.AR.Core.Frame;
 using ARConfig = Google.AR.Core.Config;
-using Javax.Microedition.Khronos.Egl;
-using Javax.Microedition.Khronos.Opengles;
-using System.Collections.Generic;
-using Android.Util;
-using Android.Views;
-using System.Collections.Concurrent;
-using System;
+using ARFrame = Google.AR.Core.Frame;
 
 [assembly: ExportRenderer(typeof(ARView), typeof(ARViewRenderer))]
 namespace TDCARExample.Droid.ViewRenderers
 {
-    public class ARViewRenderer : ViewRenderer<ARView, GLSurfaceView>, 
+    public class ARViewRenderer : ViewRenderer<ARView, GLSurfaceView>,
         GLSurfaceView.IRenderer, Android.Views.View.IOnTouchListener
     {
         const string TAG = "TDC-AR-EXAMPLE";
@@ -40,10 +40,15 @@ namespace TDCARExample.Droid.ViewRenderers
 
         private static float[] anchorMatrix = new float[16];
         List<Anchor> anchors = new List<Anchor>();
-        private GestureDetector mGestureDetector;
+        private GestureDetector gestureDetector;
+
+        private Dictionary<string, ObjectRenderer> modelToRendererMap;
+        private Dictionary<Anchor, (Model Model, float Scale)> anchorModels;
 
         public ARViewRenderer(Context context) : base(context)
         {
+            this.modelToRendererMap = new Dictionary<string, ObjectRenderer>();
+            this.anchorModels = new Dictionary<Anchor, (Model Model, float Scale)>();
         }
 
         private ARView FormsView => Element as ARView;
@@ -63,15 +68,18 @@ namespace TDCARExample.Droid.ViewRenderers
             }
             SetNativeControl(CreateGLSurfaceView());
 
-            mGestureDetector = new GestureDetector(Context, new SimpleTapGestureDetector
+            gestureDetector = new GestureDetector(Context, new SimpleTapGestureDetector
             {
-                SingleTapUpHandler = (MotionEvent arg) => {
+                SingleTapUpHandler = (MotionEvent arg) =>
+                {
                     OnSingleTap(arg);
                     return true;
                 },
                 DownHandler = (MotionEvent arg) => true
             });
             Control.SetOnTouchListener(this);
+
+            Element.VirtualObjects.CollectionChanged += OnVirtualObjectsChanged;
 
             this.session.Resume();
         }
@@ -126,6 +134,20 @@ namespace TDCARExample.Droid.ViewRenderers
             }
         }
 
+        private void OnVirtualObjectsChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            foreach (ARObject newObject in e.NewItems)
+            {
+                WorldPosition position = newObject.Coordinates;
+
+                var rotation = new float[] { position.RotationX, position.RotationY, position.RotationZ, position.RotationW };
+                var translation = new float[] { position.X, position.Y, position.Z };
+                var pose = new Pose(translation, rotation);
+                anchorModels.Add(this.session.CreateAnchor(pose), (newObject.Model, newObject.Scale));
+            }
+        }
+
+
         public void OnDrawFrame(IGL10 gl)
         {
             GLES20.GlClear(GLES20.GlColorBufferBit | GLES20.GlDepthBufferBit);
@@ -160,16 +182,18 @@ namespace TDCARExample.Droid.ViewRenderers
                         {
                             // Cap the number of objects created. This avoids overloading both the
                             // rendering system and ARCore.
-                            if (anchors.Count >= 16)
-                            {
-                                anchors[0].Detach();
-                                anchors.RemoveAt(0);
-                            }
+                            //if (anchors.Count >= 16)
+                            //{
+                            //    anchors[0].Detach();
+                            //    anchors.RemoveAt(0);
+                            //}
+                            Pose pose = hit.HitPose;
+                            var position = new WorldPosition(pose.Tx(), pose.Ty(), pose.Tz(), pose.Qx(), pose.Qy(), pose.Qz(), pose.Qw());
+                            Element.OnPlaneTapped(position);
                             // Adding an Anchor tells ARCore that it should track this position in
                             // space.  This anchor is created on the Plane to place the 3d model
                             // in the correct position relative to both the world and to the plane
-                            anchors.Add(hit.CreateAnchor());
-
+                            //anchors.Add(hit.CreateAnchor());
                             // Hits are sorted by depth. Consider only closest hit on a plane.
                             break;
                         }
@@ -227,38 +251,67 @@ namespace TDCARExample.Droid.ViewRenderers
                 this.planeRenderer.DrawPlanes(planes, camera.DisplayOrientedPose, projmtx);
 
                 // Visualize anchors created by touch.
-                float scaleFactor = 1.0f;
-                foreach (var anchor in anchors)
+                //float scaleFactor = 1.0f;
+                //foreach (var anchor in anchors)
+                //{
+                //    if (anchor.TrackingState != TrackingState.Tracking)
+                //        continue;
+
+                //    // Get the current combined pose of an Anchor and Plane in world space. The Anchor
+                //    // and Plane poses are updated during calls to session.update() as ARCore refines
+                //    // its estimate of the world.
+                //    anchor.Pose.ToMatrix(anchorMatrix, 0);
+
+                //    // Update and draw the model and its shadow.
+                //    if (FormsView.UseAlternativeModel)
+                //    {
+                //        this.vikingRenderer.updateModelMatrix(anchorMatrix, scaleFactor);
+                //        this.vikingRenderer.Draw(viewmtx, projmtx, lightIntensity);
+                //    }
+                //    else
+                //    {
+                //        this.andyRenderer.updateModelMatrix(anchorMatrix, scaleFactor);
+                //        this.andyRenderer.Draw(viewmtx, projmtx, lightIntensity);
+                //    }
+                //    this.virtualObjectShadow.updateModelMatrix(anchorMatrix, scaleFactor);
+                //    this.virtualObjectShadow.Draw(viewmtx, projmtx, lightIntensity);
+                //}
+
+
+                foreach (Anchor anchor in anchorModels.Keys)
                 {
                     if (anchor.TrackingState != TrackingState.Tracking)
+                    {
                         continue;
+                    }
 
-                    // Get the current combined pose of an Anchor and Plane in world space. The Anchor
-                    // and Plane poses are updated during calls to session.update() as ARCore refines
-                    // its estimate of the world.
                     anchor.Pose.ToMatrix(anchorMatrix, 0);
 
-                    // Update and draw the model and its shadow.
-                    if (FormsView.UseAlternativeModel)
+                    Model model = anchorModels[anchor].Model;
+                    if (!this.modelToRendererMap.ContainsKey(model.Id))
                     {
-                        this.vikingRenderer.updateModelMatrix(anchorMatrix, scaleFactor);
-                        this.vikingRenderer.Draw(viewmtx, projmtx, lightIntensity);
+                        CreateNewRenderer(model);
                     }
-                    else
-                    {
-                        this.andyRenderer.updateModelMatrix(anchorMatrix, scaleFactor);
-                        this.andyRenderer.Draw(viewmtx, projmtx, lightIntensity);
-                    }
-                    this.virtualObjectShadow.updateModelMatrix(anchorMatrix, scaleFactor);
-                    this.virtualObjectShadow.Draw(viewmtx, projmtx, lightIntensity);
-                }
 
+                    ObjectRenderer renderer = this.modelToRendererMap[model.Id];
+                    renderer.updateModelMatrix(anchorMatrix, anchorModels[anchor].Scale);
+                    renderer.Draw(viewmtx, projmtx, lightIntensity);
+                }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 // Avoid crashing the application due to unhandled exceptions.
                 Log.Error(TAG, "Exception on the OpenGL thread", ex);
             }
+
+        }
+
+        private void CreateNewRenderer(Model model)
+        {
+            var renderer = new ObjectRenderer();
+            renderer.CreateOnGlThread(Context, $"{model.Asset}.obj", $"{model.Texture}.png");
+            renderer.setMaterialProperties(0.0f, 3.5f, 1.0f, 6.0f);
+            this.modelToRendererMap.Add(model.Id, renderer);
         }
 
         public void OnSurfaceChanged(IGL10 gl, int width, int height)
@@ -316,7 +369,7 @@ namespace TDCARExample.Droid.ViewRenderers
 
         public bool OnTouch(Android.Views.View v, MotionEvent e)
         {
-            return mGestureDetector.OnTouchEvent(e);
+            return gestureDetector.OnTouchEvent(e);
         }
     }
 

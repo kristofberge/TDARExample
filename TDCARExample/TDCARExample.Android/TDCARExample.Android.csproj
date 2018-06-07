@@ -121,6 +121,8 @@
     <AndroidAsset Include="Assets\trigrid.png" />
     <AndroidAsset Include="Assets\viking.png" />
     <AndroidAsset Include="Assets\viking.obj" />
+    <AndroidAsset Include="Assets\minigodzilla.obj" />
+    <AndroidAsset Include="Assets\godzilla.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ViewRenderers\" />

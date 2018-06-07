@@ -13,6 +13,8 @@
     <AbsoluteLayout>
         <views:ARView 
             UseAlternativeModel="{Binding UseAlternativeModel}"
+            PlaneTappedCommand="{Binding PlaneTappedCommand}"
+            VirtualObjects="{Binding VirtualObjects}"
             AbsoluteLayout.LayoutBounds="0,0,1,1"
             AbsoluteLayout.LayoutFlags="All"/>
         <Grid
